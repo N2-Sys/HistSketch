@@ -1,0 +1,9 @@
+cmake_minimum_required(VERSION 3.11)
+
+project(hist_sketch_latency CXX)
+
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin/)
+
+add_executable(latencyGen latencyGen.cpp)
+add_executable(exp_latency src/experiment_lat.cpp)

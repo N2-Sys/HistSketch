@@ -1,0 +1,13 @@
+cmake_minimum_required(VERSION 3.11)
+
+project(discrete_bucket CXX)
+
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin/)
+
+include_directories(common)
+include_directories(sketch)
+
+add_executable(exp_hh experiment_hh.cpp)
+add_executable(exp_hc experiment_hc.cpp)
+add_executable(exp_latency experiment_lat.cpp)
