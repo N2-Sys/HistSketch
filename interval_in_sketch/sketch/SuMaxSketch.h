@@ -34,6 +34,7 @@ class SuMaxSketch {
 			for (int i = 0; i < depth; ++i) {
 				pos = hash(key, i);
 				T tmp = matrix[i][pos] + val;
+				// assert(tmp != 0);
 				if (tmp < omiga) {
 					matrix[i][pos] = tmp;
 					omiga = tmp;

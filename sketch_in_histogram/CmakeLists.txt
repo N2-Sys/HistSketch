@@ -9,3 +9,5 @@ include_directories(common)
 include_directories(sketch)
 
 add_executable(exp experiment.cpp)
+
+target_compile_options(exp PUBLIC -O3)

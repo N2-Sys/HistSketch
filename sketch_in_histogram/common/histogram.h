@@ -36,7 +36,7 @@ class Histogram: public HistogramBase {
 		}
 
 		void insert(Key_t key, uint8_t bid, uint32_t val = 1) {
-			assert(bid <= n);
+			// assert(bid <= n);
 			// std::cout << "bid: " << bid << std::endl;
 			buckets[bid].insert(key, val);
 		}

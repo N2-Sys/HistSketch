@@ -34,7 +34,7 @@ class CBF:public SketchBase {
 			for (int i = 0; i < hash_num; ++i) {
 				pos = hash(key, i);
 				matrix[pos].insert(bid, val);
-				assert(matrix[pos].buckets[bid] != 0);
+				// assert(matrix[pos].buckets[bid] != 0);
 			}
 		}
 

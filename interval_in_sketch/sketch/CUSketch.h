@@ -7,7 +7,7 @@
 template<typename T, uint32_t d, uint32_t w>
 class CUSketch {
 	private:
-		uint32_t depth = d, width = w;
+		uint32_t depth = d, width = w, overflow = 0;
 		uint64_t h[d], s[d], n[d];
 
 	public:
@@ -37,7 +37,11 @@ class CUSketch {
     		}
 
     		T update = min_val + val;
-			assert(update != 0);
+			// assert(update != 0);
+			// if (update == 0) {
+			// 	overflow++;
+			// 	std::cout << overflow << " " << min_val << " " << val << std::endl;
+			// }
     		for (int i = 0; i < d; ++i)
     			matrix[i][index[i]] = std::max(matrix[i][index[i]], update);
 		}

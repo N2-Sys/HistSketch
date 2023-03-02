@@ -38,12 +38,8 @@ public:
 					break;
 			}
 			sketches[i].insert(key, val);
-		}
-
-		// insert into heap
-		uint32_t result;
-		new_data_t tmp_key(key);
-		for (int i = 0; i < layer; ++i) {
+			uint32_t result;
+			new_data_t tmp_key(key);
 			if (heap[i].find(tmp_key) != heap[i].end()) {
 				heap[i][tmp_key] += val;
 			}
@@ -52,19 +48,48 @@ public:
 				heap[i].emplace(tmp_key, result);
 			}
 		}
+
+		// // insert into heap
+		// uint32_t result;
+		// new_data_t tmp_key(key);
+		// for (int i = 0; i < layer; ++i) {
+		// 	if (heap[i].find(tmp_key) != heap[i].end()) {
+		// 		heap[i][tmp_key] += val;
+		// 	}
+		// 	else {
+		// 		result = sketches[i].query(key);
+		// 		heap[i].emplace(tmp_key, result);
+		// 	}
+		// }
 		
 	}
 
 	uint32_t query(Key_t key) {
 		uint32_t hash_result, result = 0;
-		for (int i = layer - 1; i >= 0; --i) {
-			hash_result = hash(key, i);
-			if (!hash_result)
-				continue;
-			if (!result)
+		int j;
+		for (j = 0; j < layer; ++j) {
+			if (j) {
+				hash_result = hash(key, j);
+				if (!hash_result)
+					break;
+			}
+		}
+		j--;
+
+		for (int i = j; i >= 0; --i) {
+			// hash_result = hash(key, i);
+			// if (!hash_result)
+			// 	continue;
+			if (!result) {
 				result = sketches[i].query(key);
-			else
+				// result = heap[i][new_data_t(key)];
+				// std::cout << result << std::endl;
+			}
+			else if (result * 2 > sketches[i].query(key)) {
+				// std::cout << result << " " << result * 2 << " " << sketches[i].query(key) << std::endl;
 				result = result * 2 - sketches[i].query(key);
+				// result = result * 2 - heap[i][new_data_t(key)];
+			}
 			// result = sketches[i].query(key);
 			// break;
 		}

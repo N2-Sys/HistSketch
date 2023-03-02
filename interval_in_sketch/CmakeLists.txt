@@ -9,5 +9,7 @@ include_directories(common)
 include_directories(sketch)
 
 add_executable(exp_hh experiment_hh.cpp)
-add_executable(exp_hc experiment_hc.cpp)
 add_executable(exp_latency experiment_lat.cpp)
+
+target_compile_options(exp_hh PUBLIC -O3)
+target_compile_options(exp_latency PUBLIC -O3)

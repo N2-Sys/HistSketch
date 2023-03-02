@@ -9,6 +9,7 @@
 #include "UnivMon.h"
 #include "CoCoSketch.h"
 #include "histogram.h"
+#include "PRSketch.h"
 
 using namespace std;
 
@@ -23,6 +24,8 @@ map<five_tuple, map<uint8_t, uint32_t>> ground_truth_all;
 map<five_tuple, map<uint8_t, uint32_t>> ground_truth_large;
 map<five_tuple, uint32_t> ground_truth_size;
 map<uint32_t, vector<five_tuple>> sort_ground_truth_size;
+
+uint32_t total_packet_size = 0;
 
 int main (int argc, char *argv[]) {
 	readTraces(path, traces);
@@ -49,6 +52,8 @@ int main (int argc, char *argv[]) {
 			testVector.push_back(new Histogram<UnivMon<int32_t, UM_LAYER, UM_DEPTH, UM_WIDTH>>("UM"));
 		else if (string(argv[i]) == "CCS")
 			testVector.push_back(new Histogram<CoCoSketch<uint32_t, CCS_DEPTH, CCS_WIDTH>>("CCS"));
+		else if (string(argv[i]) == "PR")
+			testVector.push_back(new Histogram<PRSketch<uint32_t, PR_WIDTH, PR_DEPTH>>("PR"));
 	}
 
 	if (testVector.size() == 0) {
@@ -57,25 +62,35 @@ int main (int argc, char *argv[]) {
 		testVector.push_back(new Histogram<IBLT<uint32_t, BF_WIDTH, BF_HASHNUM, IBLT_WIDTH, IBLT_HASHNUM>>("IBLT"));
 		testVector.push_back(new Histogram<CountSketch<int32_t, CS_DEPTH, CS_WIDTH>>("CS"));
 		testVector.push_back(new Histogram<SuMaxSketch<uint32_t, SM_DEPTH, SM_WIDTH>>("SuMax"));
-		testVector.push_back(new Histogram<ElasticSketch<uint16_t, SLOT_NUM, LIGHT_DEPTH, LIGHT_WIDTH>>("ES"));
+		testVector.push_back(new Histogram<ElasticSketch<uint32_t, SLOT_NUM, LIGHT_DEPTH, LIGHT_WIDTH>>("ES"));
 		testVector.push_back(new Histogram<CBF<uint32_t, CBF_WIDTH, CBF_HASHNUM>>("CBF"));
 		testVector.push_back(new Histogram<NitroSketch<int32_t, NS_DEPTH, NS_WIDTH>>("NS"));
 		testVector.push_back(new Histogram<UnivMon<int32_t, UM_LAYER, UM_DEPTH, UM_WIDTH>>("UM"));
 		testVector.push_back(new Histogram<CoCoSketch<uint32_t, CCS_DEPTH, CCS_WIDTH>>("CCS"));
+		testVector.push_back(new Histogram<PRSketch<uint32_t, PR_WIDTH, PR_DEPTH>>("PR"));
 	}
 
 	// insert data
 	uint16_t max_length = 0, min_length = 0xffff;
+	uint32_t packet_cnt = 0;
 	for (auto it = traces.begin(); it != traces.end(); it++) {
 		uint8_t bid = it->length / BUCKET_WIDTH;
+		total_packet_size += it->length;
 		for (auto it2 = testVector.begin(); it2 != testVector.end(); it2++) {
+			auto t_a = std::chrono::high_resolution_clock::now();
+			// clock_t t_a = clock();
 			(*it2)->insert((Key_t)it->key.str, bid);
+			// clock_t t_b = clock();
+			auto t_b = std::chrono::high_resolution_clock::now();
+			(*it2)->statistics.total_insert_time += std::chrono::duration_cast<std::chrono::nanoseconds>(t_b - t_a).count();
+			// (*it2)->statistics.total_insert_time += (double)(t_b - t_a) / CLOCKS_PER_SEC;
 		}
 		//decode the ground truth
 		ground_truth_all[it->key][bid]++;
 		ground_truth_size[it->key]++;
 		max_length = max(max_length, it->length);
 		min_length = min(min_length, it->length);
+		packet_cnt++;
 		// if (ground_truth_size.size() == flow_number) {
 		// 	break;
 		// }
@@ -106,6 +121,7 @@ int main (int argc, char *argv[]) {
 			for (auto it3 = testVector.begin(); it3 != testVector.end(); it3++) {
 				uint32_t result = (*it3)->pointQuery((Key_t)it->first.str, it2->first);
 				are = abs((double)result - it2->second) / it2->second;
+				(*it3)->statistics.pointLargeARE += are;
 				if (are < POINT_ARETHRESHOLD) {
 					(*it3)->statistics.pointLarge++;
 				}
@@ -125,6 +141,7 @@ int main (int argc, char *argv[]) {
 				debug = compareKeyHist((Key_t)it->first.str, it2->first);
 				uint32_t result = (*it3)->pointQuery((Key_t)it->first.str, it2->first);
 				are = abs((double)result - it2->second) / it2->second;
+				(*it3)->statistics.pointAllARE += are;
 				if (are < POINT_ARETHRESHOLD) {
 					(*it3)->statistics.pointAll++;
 					// if (it2->second == 537) {
@@ -158,6 +175,7 @@ int main (int argc, char *argv[]) {
 				}
 			}
 			are = totalerr / totalcnt;
+			(*it2)->statistics.histogramLargeARE += are;
 			if (are < HISTOGRAM_ARETHRESHOLD) {
 				(*it2)->statistics.histogramLarge++;
 			}
@@ -183,6 +201,7 @@ int main (int argc, char *argv[]) {
 				}
 			}
 			are = totalerr / totalcnt;
+			(*it2)->statistics.histogramAllARE += are;
 			if (are < HISTOGRAM_ARETHRESHOLD) {
 				(*it2)->statistics.histogramAll++;
 			}
@@ -226,17 +245,21 @@ int main (int argc, char *argv[]) {
 	for (auto it = testVector.begin(); it !=  testVector.end(); it++) {
 		cout << "--------------- " << (*it)->name << " ---------------" << endl;
 		cout << "Point query for large flows (proportion of buckets): " <<
-			(double)(*it)->statistics.pointLarge / bucket_large << endl;
+			(double)(*it)->statistics.pointLarge / bucket_large << " " << (*it)->statistics.pointLargeARE / bucket_large << endl;
 		cout << "Point query for all flows (proportion of buckets): " <<
-			(double)(*it)->statistics.pointAll / bucket_all << endl;
+			(double)(*it)->statistics.pointAll / bucket_all << " " << (*it)->statistics.pointAllARE / bucket_all << endl;
 		cout << "Histogram query for large flows (proportion of flows): " <<
-			(double)(*it)->statistics.histogramLarge / ground_truth_large.size() << endl;
+			(double)(*it)->statistics.histogramLarge / ground_truth_large.size() << " " << (*it)->statistics.histogramLargeARE / ground_truth_large.size() << endl;
 		cout << "Histogram query for all flows (proportion of flows): " <<
-			(double)(*it)->statistics.histogramAll / ground_truth_all.size() << endl;
+			(double)(*it)->statistics.histogramAll / ground_truth_all.size() << " " << (*it)->statistics.histogramAllARE / ground_truth_all.size() << endl;
 		if ((*it)->name == "ES" || (*it)->name == "UM") {
 			cout << "Cardinality relative error: " << (*it)->statistics.cardinalityRE << endl;
 			cout << "Entropy relative error: " << (*it)->statistics.entropyRE << endl;
 		}
+		if ((*it)->name == "PR") {
+			cout << "Bandwidth of PR Sketch: " << (double)bandwidth / total_packet_size << " " << (double)PR_DEPTH * PR_WIDTH * sizeof(uint32_t) / total_packet_size << " " << (double)(bandwidth + PR_DEPTH * PR_WIDTH * sizeof(uint32_t)) / total_packet_size << endl;
+		}
+		cout << "Throughput: " << packet_cnt / (*it)->statistics.total_insert_time * 1e3 << "MPPS" << endl;
 		cout << "Memory usage: " << (double)(*it)->get_memory_usage() / 1024 / 1024 << " MB" << endl;
 	}
 	

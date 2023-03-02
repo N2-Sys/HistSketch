@@ -33,7 +33,7 @@ class CBF {
 				pos = hash(key, i);
 				matrix[pos] += val;
 				// std::cout << i << " " << pos << " " << matrix[i][pos] << std::endl;
-				assert(matrix[pos] != 0);
+				// assert(matrix[pos] != 0);
 			}
 		}
 

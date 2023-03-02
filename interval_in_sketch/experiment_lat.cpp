@@ -8,6 +8,7 @@
 #include "NitroSketch.h"
 #include "UnivMon.h"
 #include "CoCoSketch.h"
+#include "PRSketch.h"
 #include "histogram.h"
 
 using namespace std;
@@ -28,7 +29,7 @@ int main(int argc, char *argv[]) {
 	// register sketch algorithms
 	for (int i = 1; i < argc; ++i) {
 		if (string(argv[i]) == "CM")
-			testVector.push_back(new Histogram<CMSketch<uint32_t, CM_DEPTH, CM_WIDTH>>("CM"));
+			testVector.push_back(new Histogram<CMSketch<uint16_t, CM_DEPTH, CM_WIDTH>>("CM"));
 		else if (string(argv[i]) == "CU")
 			testVector.push_back(new Histogram<CUSketch<uint32_t, CU_DEPTH, CU_WIDTH>>("CU"));
 		else if (string(argv[i]) == "IBLT")
@@ -47,19 +48,22 @@ int main(int argc, char *argv[]) {
 			testVector.push_back(new Histogram<UnivMon<int32_t, UM_LAYER, UM_DEPTH, UM_WIDTH>>("UM"));
 		else if (string(argv[i]) == "CCS")
 			testVector.push_back(new Histogram<CoCoSketch<uint32_t, CCS_DEPTH, CCS_WIDTH>>("CCS"));
+		else if (string(argv[i]) == "PR")
+			testVector.push_back(new Histogram<PRSketch<uint16_t, PR_WIDTH, PR_DEPTH>>("PR"));
 	}
 
 	if (testVector.size() == 0) {
-		testVector.push_back(new Histogram<CMSketch<uint32_t, CM_DEPTH, CM_WIDTH>>("CM"));
+		testVector.push_back(new Histogram<CMSketch<uint16_t, CM_DEPTH, CM_WIDTH>>("CM"));
 		testVector.push_back(new Histogram<CUSketch<uint32_t, CU_DEPTH, CU_WIDTH>>("CU"));
 		testVector.push_back(new Histogram<IBLT<uint32_t, BF_WIDTH, BF_HASHNUM, IBLT_WIDTH, IBLT_HASHNUM>>("IBLT"));
 		testVector.push_back(new Histogram<CountSketch<int32_t, CS_DEPTH, CS_WIDTH>>("CS"));
 		testVector.push_back(new Histogram<SuMaxSketch<uint32_t, SM_DEPTH, SM_WIDTH>>("SuMax"));
-		testVector.push_back(new Histogram<ElasticSketch<uint16_t, SLOT_NUM, LIGHT_DEPTH, LIGHT_WIDTH>>("ES"));
+		testVector.push_back(new Histogram<ElasticSketch<uint32_t, SLOT_NUM, LIGHT_DEPTH, LIGHT_WIDTH>>("ES"));
 		testVector.push_back(new Histogram<CBF<uint32_t, CBF_WIDTH, CBF_HASHNUM>>("CBF"));
 		testVector.push_back(new Histogram<NitroSketch<int32_t, NS_DEPTH, NS_WIDTH>>("NS"));
 		testVector.push_back(new Histogram<UnivMon<int32_t, UM_LAYER, UM_DEPTH, UM_WIDTH>>("UM"));
 		testVector.push_back(new Histogram<CoCoSketch<uint32_t, CCS_DEPTH, CCS_WIDTH>>("CCS"));
+		testVector.push_back(new Histogram<PRSketch<uint16_t, PR_WIDTH, PR_DEPTH>>("PR"));
 	}
 
 	// insert data

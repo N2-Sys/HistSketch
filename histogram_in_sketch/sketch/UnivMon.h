@@ -41,13 +41,23 @@ public:
 
     uint32_t pointQuery(Key_t key, uint8_t bid) {
         uint32_t hash_result, result = 0;
-		for (int i = layer - 1; i >= 0; --i) {
+		int j;
+		for (j = 0; j < layer; ++j) {
+			if (j) {
+				hash_result = hash(key, j);
+				if (!hash_result)
+					break;
+			}
+		}
+		j--;
+
+		for (int i = j; i >= 0; --i) {
 			hash_result = hash(key, i);
 			if (!hash_result)
 				continue;
 			if (!result)
 				result = sketches[i].pointQuery(key, bid);
-			else
+			else  if (result * 2 > sketches[i].pointQuery(key, bid))
 				result = result * 2 - sketches[i].pointQuery(key, bid);
 		}
 		return result;

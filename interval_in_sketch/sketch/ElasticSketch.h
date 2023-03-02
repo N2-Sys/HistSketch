@@ -2,6 +2,7 @@
 #define _ELASTICSKETCH_H
 
 #include "CMSketch.h"
+#include <iostream>
 
 template<typename T>
 struct Bucket {
@@ -210,6 +211,7 @@ class ElasticSketch {
 		}
 
         uint32_t get_memory_usage() {
+            std::cout << heavy_part.get_memory_usage() << " " << light_part.get_memory_usage() << std::endl;
             return heavy_part.get_memory_usage() + light_part.get_memory_usage();
         }
 };

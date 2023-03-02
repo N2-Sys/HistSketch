@@ -5,7 +5,7 @@
 #define DATA_T_SIZE 15
 
 // hash table
-#define SLOT_NUM (1 << 11) + (1 << 12) + (1 << 13)
+#define SLOT_NUM ((1 << 11) + (1 << 12) + (1 << 13))*2
 #define EVICT_THRESHOLD 1
 #define CONTROL_PLANE_PRO 0
 
@@ -20,7 +20,7 @@
 
 // cm for histogram
 #define CM_DEPTH_HIST 4
-#define CM_WIDTH_HIST (1 << 15)
+#define CM_WIDTH_HIST (1 << 15)*2
 
 // metrics
 #define POINT_ARETHRESHOLD 0.01

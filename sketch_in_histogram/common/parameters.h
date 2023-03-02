@@ -10,7 +10,7 @@
 
 // CM Sketch
 #define CM_DEPTH 4
-#define CM_WIDTH (1 << 15)
+#define CM_WIDTH (1 << 14)
 
 // CU Sketch
 #define CU_DEPTH 4
@@ -18,12 +18,12 @@
 
 // Count Sketch
 #define CS_DEPTH 4
-#define CS_WIDTH (1 << 15)
+#define CS_WIDTH (1 << 14)
 
 // FlowRadar
-#define BF_WIDTH (1 << 19)
+#define BF_WIDTH (1 << 17)
 #define BF_HASHNUM 11
-#define IBLT_WIDTH (1 << 15) - (1 << 13)
+#define IBLT_WIDTH (1 << 13)
 #define IBLT_HASHNUM 3
 
 // SuMaxSketch
@@ -31,27 +31,34 @@
 #define SM_WIDTH (1 << 15)
 
 // Elastic Sketch
-#define SLOT_NUM (1 << 8)
+#define SLOT_NUM (1 << 9)
 #define LIGHT_DEPTH 4
-#define LIGHT_WIDTH (1 << 11)
+#define LIGHT_WIDTH (1 << 13)
 #define COUNTER_PER_BUCKET 8
 
 // CBF
-#define CBF_WIDTH (1 << 17)
+#define CBF_WIDTH (1 << 16)
 #define CBF_HASHNUM 5
 
 // NitroSketch
 #define NS_PROBABILITY 0.9
 #define NS_DEPTH 4
-#define NS_WIDTH (1 << 15)
+#define NS_WIDTH (1 << 14)
 
 // UnivMon
 #define UM_LAYER 4
 #define UM_DEPTH 4
-#define UM_WIDTH (1 << 13)
+#define UM_WIDTH (1 << 12)
 
 // CoCoSketch
 #define CCS_DEPTH 2
-#define CCS_WIDTH (1927 * 8)
+#define CCS_WIDTH (1927 * 2)
+
+// PRSketch
+#define PR_WIDTH (57344/5)
+#define PR_DEPTH 4
+#define PR_BF_WIDTH ((1 << 20)/5)
+#define PR_BF_HASH 11
+#define FAST_THRESHOLD 10
 
 #endif

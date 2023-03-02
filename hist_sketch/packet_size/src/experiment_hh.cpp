@@ -11,21 +11,32 @@ map<five_tuple, map<uint8_t, uint32_t>> ground_truth_large;
 map<five_tuple, uint32_t> ground_truth_size;
 map<uint32_t, vector<five_tuple>> sort_ground_truth_size;
 
+uint32_t total_packet_size = 0;
+
 sketch<uint32_t, H_BUCKET_NUM, SLOT_NUM, CM_DEPTH_HIST, CM_WIDTH_HIST, BLOOM_SIZE, BLOOM_HASH_NUM> hist;
 
 int main() {
 	readTraces(path, traces);
 
 	// insert data
-	uint16_t max_length = 0, min_length = 0xffff, packet_cnt = 0;
+	uint16_t max_length = 0, min_length = 0xffff;
+	uint32_t packet_cnt = 0;
 	double total_insert_time = 0;
+	
 	for (auto it = traces.begin(); it != traces.end(); it++) {
 		uint8_t bid = it->length / BUCKET_WIDTH;
+		total_packet_size += it->length;
 		new_data_t tmp_key((Key_t)it->key.str, bid);
 		auto t_a = std::chrono::high_resolution_clock::now();
+		// clock_t t_a = clock();
+		// double t_a = now_us();
 		hist.insert((Key_t)it->key.str, bid, tmp_key);
+		// clock_t t_b = clock();
 		auto t_b = std::chrono::high_resolution_clock::now();
+		// double t_b = now_us();
 		total_insert_time += std::chrono::duration_cast<std::chrono::microseconds>(t_b - t_a).count();
+		// total_insert_time += t_b - t_a;
+		// total_insert_time += (double)(t_b - t_a) / CLOCKS_PER_SEC;
 
 		//decode the ground truth
 		ground_truth_all[it->key][bid]++;
@@ -37,7 +48,7 @@ int main() {
 		// 	break;
 		// }
 	}
-
+	
 	cout << packet_cnt / total_insert_time << "MPPS" << endl;
 
 	ground_truth_large = ground_truth_all;
@@ -64,6 +75,7 @@ int main() {
 		for (auto it2 = it->second.begin(); it2 != it->second.end(); ++it2) {			// true histogram
 			uint32_t result = hist.pointQuery((Key_t)it->first.str, it2->first);
 			are = abs((double)result - it2->second) / it2->second;
+			hist.statistics.pointLargeARE += are;
 			if (are < POINT_ARETHRESHOLD) {
 				hist.statistics.pointLarge++;
 			}
@@ -82,6 +94,7 @@ int main() {
 			// 	cout << "hi\n";
 			uint32_t result = hist.pointQuery((Key_t)it->first.str, it2->first);
 			are = abs((double)result - it2->second) / it2->second;
+			hist.statistics.pointAllARE += are;
 			if (are < POINT_ARETHRESHOLD) {
 				hist.statistics.pointAll++;
 			}
@@ -111,6 +124,7 @@ int main() {
 			}
 		}
 		are = totalerr / totalcnt;
+		hist.statistics.histogramLargeARE += are;
 		if (are < HISTOGRAM_ARETHRESHOLD) {
 			hist.statistics.histogramLarge++;
 		}
@@ -134,6 +148,7 @@ int main() {
 			}
 		}
 		are = totalerr / totalcnt;
+		hist.statistics.histogramAllARE += are;
 		if (are < HISTOGRAM_ARETHRESHOLD) {
 			hist.statistics.histogramAll++;
 		}
@@ -156,16 +171,36 @@ int main() {
 
 	
 	cout << "Point query for large flows (proportion of buckets): " <<
-		(double)hist.statistics.pointLarge / bucket_large << endl;
+		(double)hist.statistics.pointLarge / bucket_large << " " << hist.statistics.pointLargeARE / bucket_large << endl;
 	cout << "Point query for all flows (proportion of buckets): " <<
-		(double)hist.statistics.pointAll / bucket_all << endl;
+		(double)hist.statistics.pointAll / bucket_all << " " << hist.statistics.pointAllARE / bucket_all << endl;
 	cout << "Histogram query for large flows (proportion of flows): " <<
-		(double)hist.statistics.histogramLarge / ground_truth_large.size() << endl;
+		(double)hist.statistics.histogramLarge / ground_truth_large.size() << " " << hist.statistics.histogramLargeARE / ground_truth_large.size() << endl;
 	cout << "Histogram query for all flows (proportion of flows): " <<
-		(double)hist.statistics.histogramAll / ground_truth_all.size() << endl;
+		(double)hist.statistics.histogramAll / ground_truth_all.size() << " " << hist.statistics.histogramAllARE / ground_truth_all.size() << endl;
 	cout << "Cardinality relative error: " << hist.statistics.cardinalityRE << endl;
 	cout << "Entropy relative error: " << hist.statistics.entropyRE << endl;
+	cout << "Bandwidth: " << (double)hist.bandwidth / total_packet_size << " " << (double)CM_DEPTH_HIST * CM_WIDTH_HIST * sizeof(uint16_t) / total_packet_size << " " << (double)(hist.bandwidth + CM_DEPTH_HIST * CM_WIDTH_HIST * sizeof(uint16_t)) / total_packet_size << endl;
 	cout << "Memory usage: " << (double)hist.get_memory_usage() / 1024 / 1024 << " MB" << endl;
+
+	// uint32_t largecnt = 0;
+	// double largeare = 0;
+	// for (int i = 0; i < hist.table.slot_num; ++i) {
+	// 	if (!hist.table.slots[i].key.isEmpty()) {
+	// 		uint32_t tot = 0;
+	// 		for (int j = 0; j < H_BUCKET_NUM; ++j) {
+	// 			if (hist.table.slots[i].hist.buckets[j].idx != -1) {
+	// 				tot += hist.table.slots[i].hist.buckets[j].val;
+	// 			}
+	// 		}
+	// 		// if (ground_truth_size[hist.table.slots[i].key] > 1000) {
+	// 			cout << tot << " " << ground_truth_size[hist.table.slots[i].key] << " " << (double)(ground_truth_size[hist.table.slots[i].key]-tot) / ground_truth_size[hist.table.slots[i].key] << endl;
+	// 			largecnt++;
+	// 			largeare += (double)(ground_truth_size[hist.table.slots[i].key]-tot) / ground_truth_size[hist.table.slots[i].key];
+	// 		// }
+	// 	}
+	// }
+	// cout << largeare / largecnt << endl;
 	
 	return 0;
 }

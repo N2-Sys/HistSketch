@@ -40,13 +40,23 @@ public:
 
 	uint32_t query(Key_t key) {
 		uint32_t hash_result, result = 0;
-		for (int i = layer - 1; i >= 0; --i) {
+		int j;
+		for (j = 0; j < layer; ++j) {
+			if (j) {
+				hash_result = hash(key, j);
+				if (!hash_result)
+					break;
+			}
+		}
+		j--;
+
+		for (int i = j; i >= 0; --i) {
 			hash_result = hash(key, i);
 			if (!hash_result)
 				continue;
 			if (!result)
 				result = sketches[i].query(key);
-			else
+			else  if (result * 2 > sketches[i].query(key))
 				result = result * 2 - sketches[i].query(key);
 			// result = sketches[i].query(key);
 			// break;

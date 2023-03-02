@@ -37,6 +37,7 @@ class CMsketch {
 			uint32_t pos;
 			for (int i = 0; i < depth; ++i) {
 				pos = hash(key, i);
+				/** not used for basic version **/
 				// assert(matrix[i][pos] != std::numeric_limits<T>::max());
 				matrix[i][pos] += val;
 			}

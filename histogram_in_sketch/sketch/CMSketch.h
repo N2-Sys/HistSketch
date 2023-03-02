@@ -68,7 +68,7 @@ class CMSketch:public SketchBase {
 			uint32_t pos;
 			for (int i = 0; i < depth; ++i) {
 				pos = hash(key, i);
-				result = std::min(result, matrix[i][pos].pointQuery(bid));
+				result = std::min(result, (T)matrix[i][pos].pointQuery(bid));
 			}
 			return (uint32_t)result;
 		}

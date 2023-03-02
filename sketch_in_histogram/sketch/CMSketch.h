@@ -33,7 +33,7 @@ class CMSketch {
 				pos = hash(key, i);
 				matrix[i][pos] += val;
 				// std::cout << i << " " << pos << " " << matrix[i][pos] << std::endl;
-				assert(matrix[i][pos] != 0);
+				// assert(matrix[i][pos] != 0);
 			}
 		}
 

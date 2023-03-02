@@ -17,6 +17,7 @@ public:
 	// std::vector<new_data_t> flowKeysHist;
 	new_data_t flowKeysHist[1000005];
 	uint32_t flowKeyPtr = 0;
+	uint32_t bandwidth = 0;
 	std::map<five_tuple, std::array<T, BUCKET_NUM>> evictHistResult;
 	// std::map<five_tuple, std::map<uint8_t, uint32_t>> evictHistResult;
 	// std::map<new_data_t, T> cmControlPlaneHistResult;				// temporarily unuseful
@@ -27,6 +28,10 @@ public:
 		uint32_t pointAll = 0;
 		uint32_t histogramLarge = 0;
 		uint32_t histogramAll = 0;
+		double pointLargeARE = 0;
+		double pointAllARE = 0;
+		double histogramLargeARE = 0;
+		double histogramAllARE = 0;
 		double cardinalityRE = 0;
 		double entropyRE = 0;
 		uint32_t pointChange = 0;
@@ -51,18 +56,52 @@ public:
 					bfHist.setbit(swap_key.str);
 					// flowKeysHist.push_back(swap_key);
 					flowKeysHist[flowKeyPtr++] = swap_key;
+					bandwidth += CHARKEY_LEN + 1;
 				}
+				// evictHistResult[swap_key.key][swap_key.bid] += swap_val;
+				// bandwidth += CHARKEY_LEN + 1 + sizeof(T);
 				break;
 			}
 			case MISS_EVICT:			// swap a flow
 			{
 
-				// Comment this if you want to test throughput
+				// Comment this if you want to test throughput, not used for basic version
 				for (int i = 0; i < bucket_num; ++i) {
 					if (swap_slot.hist.buckets[i].idx == -1)
 						continue;
+					// new_data_t tmp_key2(swap_slot.key.str, swap_slot.hist.buckets[i].idx);
+					// lightHist.insert(tmp_key2.str);
+					// if (!bfHist.getbit(tmp_key2.str)) {
+					// 	bfHist.setbit(tmp_key2.str);
+					// 	// flowKeysHist.push_back(swap_key);
+					// 	flowKeysHist[flowKeyPtr++] = tmp_key2;
+					// 	bandwidth += CHARKEY_LEN + 1;
+					// }
+					// swap_key = new_data_t(swap_slot.key.str, swap_slot.hist.buckets[i].idx);
+					// lightHist.insert(swap_key.str, swap_slot.hist.buckets[i].val);
+					// if (!bfHist.getbit(swap_key.str)) {
+					// 	bfHist.setbit(swap_key.str);
+					// 	// flowKeysHist.push_back(swap_key);
+					// 	flowKeysHist[flowKeyPtr++] = swap_key;
+					// 	bandwidth += CHARKEY_LEN + 1;
+					// }
 						evictHistResult[swap_slot.key][swap_slot.hist.buckets[i].idx] += swap_slot.hist.buckets[i].val;
+						bandwidth += 1 + sizeof(T);
 				}
+
+				/** used for basic version **/
+				// for (int i = 0; i < bucket_num; ++i) {
+				// 	if (swap_slot.hist.buckets[i].val == 0)
+				// 		continue;
+				// 	swap_key = new_data_t(swap_slot.key.str, i);
+				// 	lightHist.insert(swap_key.str, swap_slot.hist.buckets[i].val);
+				// 	if (!bfHist.getbit(swap_key.str)) {
+				// 		bfHist.setbit(swap_key.str);
+				// 	}
+				// }
+
+				/** used for optimized version **/
+				bandwidth += CHARKEY_LEN;
 				
 				break;
 			}
@@ -73,6 +112,7 @@ public:
 					bfHist.setbit(tmp_key.str);
 					// flowKeysHist.push_back(tmp_key);
 					flowKeysHist[flowKeyPtr++] = tmp_key;
+					bandwidth += CHARKEY_LEN + 1;
 				}
 
 				// std::random_device rd;  // Will be used to obtain a seed for the random number engine
@@ -187,7 +227,7 @@ public:
 		#endif
 		}
 
-		// control plane result
+		// control plane result, not used for basic version
 		five_tuple tmpKey(k);
 		if (evictHistResult.find(tmpKey) != evictHistResult.end()) {
 			result += evictHistResult[tmpKey][bid];
@@ -195,7 +235,6 @@ public:
 				std::cout << "control plane result:" << evictHistResult[tmpKey][bid] << std::endl;
 		}
 
-		// std::cout << std::endl;
 		return result;
 	}
 

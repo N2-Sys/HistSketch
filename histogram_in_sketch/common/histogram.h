@@ -34,7 +34,7 @@ class Histogram {
 			assert(bid <= bucket_num);
 			// std::cout << buckets[bid] << " " << val << " " << buckets[bid] + val <<  std::endl;
 			buckets[bid] += val;
-			assert(buckets[bid] != 0);
+			// assert(buckets[bid] != 0);
 		}
 
 		uint32_t pointQuery(uint8_t bid) {

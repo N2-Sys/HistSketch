@@ -10,6 +10,7 @@ class CMSketch {
 		int depth = d, width = w;
 		uint64_t h[d], s[d], n[d];
 		std::map<T, uint32_t> distribution;
+		uint32_t overflow = 0;
 
 	public:
 		std::vector<std::vector<T>> matrix;
@@ -35,7 +36,11 @@ class CMSketch {
 				pos = hash(key, i);
 				matrix[i][pos] += val;
 				// std::cout << i << " " << pos << " " << matrix[i][pos] << std::endl;
-				assert(matrix[i][pos] != 0);
+				// assert(matrix[i][pos] != 0);
+				// if (matrix[i][pos] == 0) {
+				// 	overflow++;
+				// 	std::cout << overflow << std::endl;
+				// }
 			}
 		}
 

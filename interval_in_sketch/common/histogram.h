@@ -14,10 +14,15 @@ public:
 		uint32_t histogramAll = 0;
 		uint32_t pointChange = 0;
 		uint32_t histogramChange = 0;
+		double pointLargeARE = 0;
+		double pointAllARE = 0;
+		double histogramLargeARE = 0;
+		double histogramAllARE = 0;
 		double cardinalityRE = 0;
 		double entropyRE = 0;
 		double _90_avgRe = 0;
 		double _95_avgRe = 0;
+		double total_insert_time = 0;
 	} statistics;
 
 	virtual void insert(Key_t key, uint8_t bid, uint32_t val = 1) {}

@@ -29,38 +29,38 @@ int main (int argc, char *argv[]) {
 	// register sketch algorithms
 	for (int i = 1; i < argc; ++i) {
 		if (string(argv[i]) == "CM")
-			testVector.push_back(new CMSketch<uint32_t, CM_DEPTH, CM_WIDTH>("CM"));
+			testVector.push_back(new CMSketch<uint16_t, CM_DEPTH, CM_WIDTH>("CM"));
 		else if (string(argv[i]) == "CU")
 			testVector.push_back(new CUSketch<uint32_t, CU_DEPTH, CU_WIDTH>("CU"));
 		else if (string(argv[i]) == "IBLT")
-			testVector.push_back(new IBLT<uint32_t, BF_WIDTH, BF_HASHNUM, IBLT_WIDTH, IBLT_HASHNUM>("IBLT"));
+			testVector.push_back(new IBLT<uint16_t, BF_WIDTH, BF_HASHNUM, IBLT_WIDTH, IBLT_HASHNUM>("IBLT"));
 		else if (string(argv[i]) == "CS")
-			testVector.push_back(new CountSketch<int32_t, CS_DEPTH, CS_WIDTH>("CS"));
+			testVector.push_back(new CountSketch<int16_t, CS_DEPTH, CS_WIDTH>("CS"));
 		else if (string(argv[i]) == "SuMax")
 			testVector.push_back(new SuMaxSketch<uint32_t, SM_DEPTH, SM_WIDTH>("SuMax"));
 		else if (string(argv[i]) == "ES")
-			testVector.push_back(new ElasticSketch<uint32_t, SLOT_NUM, LIGHT_DEPTH, LIGHT_WIDTH>("ES"));
+			testVector.push_back(new ElasticSketch<uint16_t, SLOT_NUM, LIGHT_DEPTH, LIGHT_WIDTH>("ES"));
 		else if (string(argv[i]) == "CBF")
-			testVector.push_back(new CBF<uint32_t, CBF_WIDTH, CBF_HASHNUM>("CBF"));
+			testVector.push_back(new CBF<uint16_t, CBF_WIDTH, CBF_HASHNUM>("CBF"));
 		else if (string(argv[i]) == "NS")
-			testVector.push_back(new NitroSketch<int32_t, NS_DEPTH, NS_WIDTH>("NS"));
+			testVector.push_back(new NitroSketch<int16_t, NS_DEPTH, NS_WIDTH>("NS"));
 		else if (string(argv[i]) == "UM")
-			testVector.push_back(new UnivMon<int32_t, UM_LAYER, UM_DEPTH, UM_WIDTH>("UM"));
+			testVector.push_back(new UnivMon<int16_t, UM_LAYER, UM_DEPTH, UM_WIDTH>("UM"));
 		else if (string(argv[i]) == "CCS")
-			testVector.push_back(new CoCoSketch<uint32_t, CCS_DEPTH, CCS_WIDTH>("CCS"));
+			testVector.push_back(new CoCoSketch<uint16_t, CCS_DEPTH, CCS_WIDTH>("CCS"));
 	}
 
 	if (testVector.size() == 0) {
-		testVector.push_back(new CMSketch<uint32_t, CM_DEPTH, CM_WIDTH>("CM"));
+		testVector.push_back(new CMSketch<uint16_t, CM_DEPTH, CM_WIDTH>("CM"));
 		testVector.push_back(new CUSketch<uint32_t, CU_DEPTH, CU_WIDTH>("CU"));
-		testVector.push_back(new IBLT<uint32_t, BF_WIDTH, BF_HASHNUM, IBLT_WIDTH, IBLT_HASHNUM>("IBLT"));
-		testVector.push_back(new CountSketch<int32_t, CS_DEPTH, CS_WIDTH>("CS"));
+		testVector.push_back(new IBLT<uint16_t, BF_WIDTH, BF_HASHNUM, IBLT_WIDTH, IBLT_HASHNUM>("IBLT"));
+		testVector.push_back(new CountSketch<int16_t, CS_DEPTH, CS_WIDTH>("CS"));
 		testVector.push_back(new SuMaxSketch<uint32_t, SM_DEPTH, SM_WIDTH>("SuMax"));
-		testVector.push_back(new ElasticSketch<uint32_t, SLOT_NUM, LIGHT_DEPTH, LIGHT_WIDTH>("ES"));
-		testVector.push_back(new CBF<uint32_t, CBF_WIDTH, CBF_HASHNUM>("CBF"));
-		testVector.push_back(new NitroSketch<int32_t, NS_DEPTH, NS_WIDTH>("NS"));
-		testVector.push_back(new UnivMon<int32_t, UM_LAYER, UM_DEPTH, UM_WIDTH>("UM"));
-		testVector.push_back(new CoCoSketch<uint32_t, CCS_DEPTH, CCS_WIDTH>("CCS"));
+		testVector.push_back(new ElasticSketch<uint16_t, SLOT_NUM, LIGHT_DEPTH, LIGHT_WIDTH>("ES"));
+		testVector.push_back(new CBF<uint16_t, CBF_WIDTH, CBF_HASHNUM>("CBF"));
+		testVector.push_back(new NitroSketch<int16_t, NS_DEPTH, NS_WIDTH>("NS"));
+		testVector.push_back(new UnivMon<int16_t, UM_LAYER, UM_DEPTH, UM_WIDTH>("UM"));
+		testVector.push_back(new CoCoSketch<uint16_t, CCS_DEPTH, CCS_WIDTH>("CCS"));
 	}
 
 	// insert data
